@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>鸟点坐标</name>
+
+    <Placemark>
+      <name>春林宾馆</name>
+      <Point><coordinates>101.252282,21.935425</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>鹰鸮</name>
+      <Point><coordinates>101.251570,21.934226</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>钳嘴鹳</name>
+      <Point><coordinates>101.248890,21.932088</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>黄腹鹟莺、长嘴捕蛛鸟(芭蕉花)、栗斑杜鹃声音</name>
+      <Point><coordinates>101.252142,21.932324</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>东方田鹨</name>
+      <Point><coordinates>101.249810,21.930633</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>东方田鹨2</name>
+      <Point><coordinates>101.256728,21.926409</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>厚嘴啄花鸟、黄臀啄花鸟（榕树园区域）</name>
+      <Point><coordinates>101.25259262357079,21.927877512753547</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>紫金鹃、栗苇鳽（这块西边一点的的五桠子有咬鹃）</name>
+      <Point><coordinates>101.249048,21.927890</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>赤胸拟啄木鸟、黑枕王鹟、蓝须夜蜂虎</name>
+      <Point><coordinates>101.24980433,21.92820576</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>栗背伯劳</name>
+      <Point><coordinates>101.249613,21.925142</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>长嘴捕蛛鸟</name>
+      <Point><coordinates>101.249241,21.925575</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>红原鸡</name>
+      <Point><coordinates>101.249836,21.923530</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>黄胸织雀</name>
+      <Point><coordinates>101.253097,21.924278</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>灰头绿鸠、厚嘴绿鸠，甚多</name>
+      <Point><coordinates>101.253222,21.930785</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>红顶鹛（季节不对，没有）</name>
+      <Point><coordinates>101.255415,21.931349</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>红顶鹛2</name>
+      <Point><coordinates>101.256204,21.931947</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>电站观测点</name>
+      <Point><coordinates>101.263503,21.928159</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>黑头鹎</name>
+      <Point><coordinates>101.257432,21.926598</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>灰燕鵙（根本没看到）</name>
+      <Point><coordinates>101.266102,21.916138</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>热带雨林吊桥（赤石）</name>
+      <Point><coordinates>101.2685787046806,21.919766296469206</coordinates></Point>
+    </Placemark>
+
+    <Placemark>
+      <name>灰岩鹪鹛（10点~10点半下山到美猴岩）、橙胸咬鹃（不容易）、山蓝仙鹟、小盘尾等等。绿石林入口还有乌鹃</name>
+      <Point><coordinates>101.28455556423911,21.91024550782946</coordinates></Point>
+    </Placemark>
+
+  </Document>
+</kml>

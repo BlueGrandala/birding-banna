@@ -25,49 +25,82 @@
 </head>
 <body>
 <div id="map"></div>
-<div class="info-box" id="infoBox">正在获取位置…</div>
+<div class="info-box" id="infoBox">正在加载 main.kml…</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ====== 1. 鸟点数据（WGS84 经纬度） ======
-const birds = [
-  { name: "春林宾馆", lng: 101.252282, lat: 21.935425 },
-  { name: "鹰鸮", lng: 101.251570, lat: 21.934226 },
-  { name: "钳嘴鹳", lng: 101.248890, lat: 21.932088 },
-  { name: "东方田鹨", lng: 101.249810, lat: 21.930633 },
-  { name: "紫金鹃", lng: 101.249048, lat: 21.927890 },
-  { name: "赤胸拟啄木鸟、黑枕王鹟、蓝须夜蜂虎", lng: 101.24980433, lat: 21.92820576 },
-  { name: "栗背伯劳", lng: 101.249613, lat: 21.925142 },
-  { name: "长嘴捕蛛鸟", lng: 101.249241, lat: 21.925575 },
-  { name: "红原鸡", lng: 101.249836, lat: 21.923530 },
-  { name: "黄胸织雀", lng: 101.253097, lat: 21.924278 },
-  { name: "灰头绿鸠", lng: 101.253222, lat: 21.930785 },
-  { name: "红顶鹛", lng: 101.255415, lat: 21.931349 },
-  { name: "红顶鹛2", lng: 101.256204, lat: 21.931947 },
-  { name: "电站观测点", lng: 101.263503, lat: 21.928159 },
-  { name: "黑头鹎", lng: 101.257432, lat: 21.926598 },
-  { name: "灰燕鵙", lng: 101.266102, lat: 21.916138 }
-];
-
-// ====== 2. 初始化地图 ======
+// ====== 1. 初始化地图 ======
 const map = L.map('map').setView([21.928, 101.253], 15);
 
-// 卫星底图（Esri 全球卫星影像，免 key，国内可访问）
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   maxZoom: 19,
   attribution: 'Tiles © Esri'
 }).addTo(map);
 
-// 叠加路网/地名标注，方便对照
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
   maxZoom: 19, opacity: 0.8
 }).addTo(map);
 
-// ====== 3. 画鸟点 ======
+const infoBox = document.getElementById('infoBox');
 const birdMarkers = [];
-birds.forEach(b => {
-  const m = L.marker([b.lat, b.lng], {
-    title: b.name,
+
+// ====== 2. 读取并解析同目录 main.kml ======
+fetch('main.kml')
+  .then(res => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}，请确认 main.kml 与 html 同目录`);
+    return res.text();
+  })
+  .then(kmlText => {
+    const parser = new DOMParser();
+    const kmlDoc = parser.parseFromString(kmlText, 'application/xml');
+
+    // 检查 XML 解析错误
+    const parseError = kmlDoc.querySelector('parsererror');
+    if (parseError) throw new Error('KML 格式错误：' + parseError.textContent);
+
+    // 取所有 Placemark（兼容带命名空间的情况）
+    const placemarks = kmlDoc.getElementsByTagNameNS('*', 'Placemark');
+    if (placemarks.length === 0) throw new Error('KML 里没有找到 Placemark');
+
+    for (const pm of placemarks) {
+      // 名称
+      const nameEl = pm.getElementsByTagNameNS('*', 'name')[0];
+      const name = nameEl ? nameEl.textContent.trim() : '未命名点';
+
+      // 坐标：取第一个 Point 下的 coordinates
+      const coordEl = pm.getElementsByTagNameNS('*', 'coordinates')[0];
+      if (!coordEl) continue; // 跳过线/面等非点要素
+      const raw = coordEl.textContent.trim();
+      // KML 坐标格式：经度,纬度[,高度]
+      const parts = raw.split(',');
+      if (parts.length < 2) continue;
+      const lng = parseFloat(parts[0]);
+      const lat = parseFloat(parts[1]);
+      if (isNaN(lat) || isNaN(lng)) continue;
+
+      addBirdMarker(name, lat, lng);
+    }
+
+    infoBox.innerHTML = `已加载 <b>${birdMarkers.length}</b> 个鸟点<br>正在获取位置…`;
+
+    // 自动缩放到所有点
+    if (birdMarkers.length > 0) {
+      const group = L.featureGroup(birdMarkers);
+      map.fitBounds(group.getBounds().pad(0.2));
+    }
+
+    // 默认打开第一个点的 popup
+    setTimeout(() => birdMarkers[0]?.openPopup(), 600);
+  })
+  .catch(err => {
+    infoBox.innerHTML = `加载 main.kml 失败：<br>${err.message}`;
+    console.error(err);
+  });
+
+// ====== 3. 添加单个鸟点 ======
+function addBirdMarker(name, lat, lng) {
+  const m = L.marker([lat, lng], {
+    title: name,
     icon: L.divIcon({
       className: 'bird-icon',
       html: '<div style="background:#e33;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 4px #000;"></div>',
@@ -75,23 +108,21 @@ birds.forEach(b => {
       iconAnchor: [7,7]
     })
   }).addTo(map);
-  m.bindPopup(`<b>${b.name}</b><br><span class="dist">距离未知</span><br>
-    <button class="nav-btn" onclick="navTo(${b.lat},${b.lng})">导航到此点</button>`);
-  m.birdData = b;
+
+  m.bindPopup(`<b>${name}</b><br><span class="dist">距离未知</span><br>
+    <button class="nav-btn" onclick="navTo(${lat},${lng})">导航到此点</button>`);
+  m.birdData = { name, lat, lng };
   birdMarkers.push(m);
-});
+}
 
 // ====== 4. 实时定位 ======
 let userMarker = null;
 let accuracyCircle = null;
 let userLatLng = null;
 
-const infoBox = document.getElementById('infoBox');
-
 function updateInfo() {
   if (!userLatLng) return;
   let html = `<b>我的位置</b><br>${userLatLng.lat.toFixed(6)}, ${userLatLng.lng.toFixed(6)}<br>`;
-  // 计算离最近鸟点
   let nearest = null, minD = Infinity;
   birdMarkers.forEach(m => {
     const d = map.distance(userLatLng, [m.birdData.lat, m.birdData.lng]);
@@ -101,7 +132,6 @@ function updateInfo() {
     html += `最近：<b>${nearest.birdData.name}</b><br>距离 ${fmtDist(minD)}`;
   }
   infoBox.innerHTML = html;
-  // 更新每个 popup 里的距离
   birdMarkers.forEach(m => {
     const d = map.distance(userLatLng, [m.birdData.lat, m.birdData.lng]);
     const el = m.getPopup()?.getElement()?.querySelector('.dist');
@@ -127,7 +157,6 @@ function onLocation(e) {
       radius: accuracy, color: '#2c7', weight: 1,
       fillColor: '#2c7', fillOpacity: 0.15
     }).addTo(map);
-    map.setView(userLatLng, 17);
   } else {
     userMarker.setLatLng(userLatLng);
     accuracyCircle.setLatLng(userLatLng).setRadius(accuracy);
@@ -147,11 +176,9 @@ if (navigator.geolocation) {
   infoBox.textContent = '浏览器不支持定位';
 }
 
-// ====== 5. 导航按钮：跳系统地图 ======
+// ====== 5. 导航按钮 ======
 function navTo(lat, lng) {
-  // 优先用 geo: URI（手机），浏览器会弹出选择高德/百度/Google Maps
   const geoUrl = `geo:${lat},${lng}?q=${lat},${lng}(鸟点)`;
-  // 桌面端兜底：Google Maps
   const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
     window.location.href = geoUrl;
@@ -159,9 +186,6 @@ function navTo(lat, lng) {
     window.open(webUrl, '_blank');
   }
 }
-
-// 默认打开第一个点的 popup，方便看效果
-setTimeout(() => birdMarkers[0].openPopup(), 800);
 </script>
 </body>
 </html>
